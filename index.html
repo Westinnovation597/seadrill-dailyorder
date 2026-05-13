@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seadrill Academy — Daily Meal Order</title>
+
+<style>
+  :root{--dark:#1A1A2E;--mid:#2C3E50;--accent:#E67E22;--accent2:#D35400;--light:#F4F6F8;--border:#C8D0D8;--success:#27AE60;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;background:#E8ECF0;color:var(--dark);min-height:100vh;}
+
+  .site-header{background:var(--dark);border-bottom:4px solid var(--accent);padding:22px 32px 18px;}
+  .header-inner{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+  .brand-title{font-family:Arial Narrow,sans-serif;font-weight:800;font-size:22px;color:white;letter-spacing:0.04em;line-height:1;margin-bottom:4px;}
+  .brand-sub{font-size:12px;color:#8899AA;}
+  .header-badge{background:var(--accent);color:white;border-radius:4px;padding:8px 14px;font-family:Arial Narrow,sans-serif;font-weight:700;font-size:11px;letter-spacing:0.06em;text-align:center;line-height:1.6;white-space:nowrap;}
+
+  .notice{background:#FEF3E8;border-left:4px solid var(--accent);padding:12px 20px;}
+  .notice-inner{max-width:760px;margin:0 auto;font-size:13px;color:#7D4E0F;line-height:1.5;}
+  .notice-inner strong{color:var(--accent2);}
+
+  .form-wrap{max-width:760px;margin:24px auto;padding:0 16px 48px;}
+
+  /* Day selector */
+  .day-selector-card{background:white;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:20px;overflow:hidden;animation:fadeUp 0.3s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .day-selector-card .card-header{background:var(--mid);padding:12px 20px;display:flex;align-items:center;gap:12px;}
+  .card-num{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-family:Arial Narrow,sans-serif;font-weight:800;font-size:14px;color:white;flex-shrink:0;}
+  .card-title{font-family:Arial Narrow,sans-serif;font-weight:700;font-size:15px;color:white;letter-spacing:0.05em;text-transform:uppercase;}
+  .card-subtitle{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px;}
+  .card-body{padding:20px;}
+
+  .day-btn-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+  .day-btn{font-family:Arial Narrow,sans-serif;font-weight:700;font-size:14px;letter-spacing:0.05em;padding:10px 20px;border-radius:4px;border:2px solid var(--border);background:var(--light);color:#8899AA;cursor:pointer;transition:all 0.15s;}
+  .day-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .day-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+
+  /* Order form card */
+  .form-card{background:white;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:20px;overflow:hidden;display:none;animation:fadeUp 0.3s ease;}
+  .form-card.visible{display:block;}
+  .form-card .card-header{background:var(--accent);padding:12px 20px;display:flex;align-items:center;gap:12px;}
+
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .field-row.full{grid-template-columns:1fr;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-family:Arial Narrow,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);}
+  .field label .req{color:var(--accent);margin-left:2px;}
+  .field input,.field textarea{border:1.5px solid var(--border);border-radius:4px;padding:10px 12px;font-family:Arial,sans-serif;font-size:13.5px;color:var(--dark);background:var(--light);outline:none;width:100%;transition:border-color 0.15s,background 0.15s;}
+  .field input:focus,.field textarea:focus{border-color:var(--accent);background:white;}
+  .field textarea{resize:vertical;min-height:68px;}
+  .field-hint{font-size:11px;color:#8899AA;margin-top:2px;}
+
+  .submit-wrap{text-align:center;padding:8px 0 4px;}
+  .btn-submit{background:var(--accent);color:white;border:none;border-radius:5px;padding:13px 48px;font-family:Arial Narrow,sans-serif;font-weight:800;font-size:16px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 14px rgba(230,126,34,0.3);}
+  .btn-submit:hover{background:var(--accent2);transform:translateY(-1px);}
+  .btn-submit:disabled{background:#BDC3C7;cursor:not-allowed;box-shadow:none;transform:none;}
+  .submit-note{font-size:11.5px;color:#8899AA;margin-top:10px;}
+
+  /* Success toast */
+  .toast{display:none;background:var(--success);color:white;border-radius:6px;padding:16px 24px;margin-bottom:20px;text-align:center;animation:fadeUp 0.3s ease;}
+  .toast.visible{display:block;}
+  .toast-title{font-family:Arial Narrow,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.03em;margin-bottom:4px;}
+  .toast-msg{font-size:13px;opacity:0.9;}
+
+  .site-footer{background:var(--dark);border-top:3px solid var(--accent);padding:14px 32px;text-align:center;}
+  .site-footer p{font-size:11px;color:#445566;}
+
+  @media(max-width:560px){
+    .field-row{grid-template-columns:1fr;}
+    .header-inner{flex-direction:column;align-items:flex-start;}
+    .form-wrap{padding:0 10px 40px;}
+    .day-btn{padding:9px 14px;font-size:13px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="header-inner">
+    <div>
+      <div class="brand-title">SEADRILL ACADEMY</div>
+      <div class="brand-sub">Seadrill Academy — Daily On-Site Meal Order</div>
+    </div>
+    <div class="header-badge">ORDER BY<br>10:30AM</div>
+  </div>
+</div>
+
+<div class="notice">
+  <div class="notice-inner">
+    <strong>Submit your meal order each morning before 10:30am.</strong>
+    Each day you may choose <strong>1 Main Meal</strong> from any category on the menu (Breakfast Boxes, Powerbowls, Italian Sandwiches, French Baguette Sandwiches, Premium Sandwiches, Traditional Sandwiches, Wraps, Pressatas, Hot Plates or Salads) plus <strong>1 item from the "Add to Your Box Lunch" section</strong> (Fresh Fruit Cup, Pesto Pasta Salad, Mixed Green Salad, Hummus &amp; Veggies, Tomato Basil Pasta Salad, Mediterranean Pasta Salad or Quinoa &amp; Kale Salad). The full menu is available from your instructor. Lunch is delivered at <strong>11:45am</strong>.
+  </div>
+</div>
+
+<div class="form-wrap">
+
+  <!-- Toast success message -->
+  <div class="toast" id="toastSuccess">
+    <div class="toast-title">✓ Order Submitted!</div>
+    <div class="toast-msg">Your meal order has been received. See you at lunch at 11:45am!</div>
+  </div>
+
+  <!-- Day selector -->
+  <div class="day-selector-card">
+    <div class="card-header">
+      <div class="card-num">★</div>
+      <div>
+        <div class="card-title">Select Today's Day</div>
+        <div class="card-subtitle">Tap the day number that matches today's course day</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="day-btn-grid" id="dayBtnGrid">
+        <button type="button" class="day-btn" onclick="selectDay(3)">Day 3</button>
+        <button type="button" class="day-btn" onclick="selectDay(4)">Day 4</button>
+        <button type="button" class="day-btn" onclick="selectDay(5)">Day 5</button>
+        <button type="button" class="day-btn" onclick="selectDay(6)">Day 6</button>
+        <button type="button" class="day-btn" onclick="selectDay(7)">Day 7</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order form (shown after day selected) -->
+  <div class="form-card" id="orderCard">
+    <div class="card-header">
+      <div class="card-num">🍱</div>
+      <div>
+        <div class="card-title" id="orderCardTitle">Day — Meal Selection</div>
+        <div class="card-subtitle">Fill in your choices and submit before 10:30am</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <form id="orderForm" action="https://formspree.io/f/xnjwrnda" method="POST">
+        <input type="hidden" name="form_type" value="Daily On-Site Order">
+        <input type="hidden" name="day_number" id="hiddenDay">
+        <input type="hidden" name="_subject" id="hiddenSubject" value="🍱 Daily Meal Order — Seadrill Academy">
+
+        <div class="field-row">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" name="full_name" required placeholder="e.g. John Smith">
+          </div>
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" name="email" required placeholder="your@email.com">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Course Start Date <span class="req">*</span></label>
+            <input type="date" name="course_start_date" required>
+          </div>
+          <div class="field">
+            <label>Dietary Requirements / Allergies</label>
+            <input type="text" name="dietary_requirements" placeholder="Leave blank if none">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Main Meal <span class="req">*</span></label>
+            <input type="text" name="main_meal" required placeholder="e.g. Pecan-Crusted Chicken">
+          </div>
+          <div class="field">
+            <label>Add to Your Box Lunch <span class="req">*</span></label>
+            <input type="text" name="addon" required placeholder="e.g. Mixed Green Salad">
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field">
+            <label>Comments / Customise</label>
+            <textarea name="comments" placeholder="e.g. no nuts, extra sauce, gluten-free option…"></textarea>
+            <span class="field-hint">Optional — use this to personalise your order</span>
+          </div>
+        </div>
+        <div class="submit-wrap">
+          <button type="submit" class="btn-submit" id="submitBtn">Submit Today's Order</button>
+          <p class="submit-note">Your order goes directly to the Seadrill Academy team.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<div class="site-footer">
+  <p>Seadrill Academy Training Courses &nbsp;·&nbsp; Orders must be placed by 10:30am for same-day delivery at 11:45am</p>
+</div>
+
+<script>
+let selectedDay = null;
+
+function selectDay(d) {
+  selectedDay = d;
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('hiddenDay').value = `Day ${d}`;
+  document.getElementById('hiddenSubject').value = `🍱 Daily Meal Order Day ${d} — Seadrill Academy`;
+  document.getElementById('orderCardTitle').textContent = `Day ${d} — Meal Selection`;
+  const card = document.getElementById('orderCard');
+  card.classList.add('visible');
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const res = await fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      // Show toast, reset form, scroll to top
+      const toast = document.getElementById('toastSuccess');
+      toast.classList.add('visible');
+      this.reset();
+      document.getElementById('orderCard').classList.remove('visible');
+      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+      btn.disabled = false;
+      btn.textContent = "Submit Today's Order";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => toast.classList.remove('visible'), 5000);
+    } else {
+      btn.disabled = false;
+      btn.textContent = "Submit Today's Order";
+      alert('Something went wrong. Please try again.');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.textContent = "Submit Today's Order";
+    alert('Could not connect. Please check your internet and try again.');
+  }
+});
+</script>
+</body>
+</html>
